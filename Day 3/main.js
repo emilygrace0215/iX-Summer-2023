@@ -99,7 +99,7 @@ function getPostalCode(cityName) {
 }
 
 function sortStringsAlphabetically(arr) {
-  return arr.sort();
+  return arr.sort(); //use locale compare
 }
 
 function sortNumbersAscending(arr) {
