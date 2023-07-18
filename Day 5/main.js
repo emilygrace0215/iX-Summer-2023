@@ -52,20 +52,46 @@ class UI {
 
   createTaskTableRow(task) {
     const tr = document.createElement("tr");
+    const deleteButton = document.createElement("button");
+
+    deleteButton.setAttribute("class", "btn btn-danger btn-sm");
+    deleteButton.innerHTML = "Delete";
+    deleteButton.addEventListener("click", () =>
+      this.onRemoveTaskClicked(book)
+    );
 
     const tdTitle = document.createElement("td");
-    const tdCompleted = document.createElement('td');
+    const tdRadio = document.createElement("td");
+    const tdButton = document.createElement("td");
+
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "name";
+    checkbox.value = "value";
+    checkbox.id = "id";
+
+    var radiobox = document.createElement("input");
+    radiobox.type = "radio";
+    radiobox.id = "contact";
 
     tdTitle.innerHTML = task.title;
-
-    var radiobox = document.createElement('input');
-    radiobox.type = 'radio';
-    radiobox.id = 'contact';
+    tdRadio.appendChild(checkbox);
+    tdButton.appendChild(deleteButton);
 
     tr.appendChild(tdTitle);
-    tr.appendChild(radiobox);
+    tr.appendChild(tdRadio);
+    tr.appendChild(tdButton);
 
     return tr;
+  }
+
+  onRemoveTaskClicked(task) {
+    this.tasks = this.tasks.filter((x) => {
+      return task.title !== x.title;
+    });
+
+    this.saveTasksToLocalStorage();
+    this.renderTaskTable();
   }
 
   saveTasksToLocalStorage() {
