@@ -31,35 +31,36 @@ import {
       return books;
     }
   
-    async createBook(task) {
+    async createBook(book) {
       const collectionRef = collection(db, this.collection);
   
       const docRef = await addDoc(collectionRef, {
-        name: task.name,
-        complete: task.complete,
+        title: book.title,
+        author: book.author,
+        isbn: book.isbn,
       });
   
-      task.id = docRef.id;
-      return task;
+      book.id = docRef.id;
+      return book;
     }
   
-    async updateTask(task) {
-      const docRef = doc(db, this.collection, task.id);
+    async updateBook(book) {
+      const docRef = doc(db, this.collection, book.id);
   
       await updateDoc(docRef, {
-        name: task.name,
-        complete: task.complete,
+        title: book.title,
+        author: book.author,
+        isbn: book.isbn,
       });
   
-      return task;
+      return book;
     }
   
-    async deleteTask(taskId) {
-      const docRef = doc(db, this.collection, taskId);
+    async deleteBook(bookid) {
+      const docRef = doc(db, this.collection, bookid);
       await deleteDoc(docRef);
     }
   }
   
-  const service = new TaskService();
+  const service = new BookService();
   export default service;
-  

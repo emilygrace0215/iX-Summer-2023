@@ -1,60 +1,57 @@
 import './App.css';
+
 import { useState, useEffect } from 'react';
-import { Book } from './models/book';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Model imports
+import { Book } from './models/book';
+
+// Component imports
 import BookForm from './components/BookForm';
 import BookTable from './components/BookTable';
 
+// Service imports
+import BookService from './services/book-service';
+
 function App() {
   const [books, setBooks] = useState([]);
-  const [bookToEdit, setBookToEdit] = useState(null);
 
   useEffect(() => {
-    loadBooksFromLocalStorage();
+    if (!books.length) {
+      onInitialLoad();
+    }
   }, []);
 
-  useEffect(() => {
-    saveBooksToLocalStorage();
-  }, [books]);
-
-  function onBookCreated(book) {
-    setBookToEdit(null);
-    setBooks([...books, book]);
-  }
-
-  function onBookDelete(book) {
-    setBooks(books.filter((x) => x.isbn !== book.isbn));
-  }
-
-  function onBookEdit(book) {
-    setBookToEdit(book);
-    setBooks(books.filter((x) => x.isbn !== book.isbn));
-  }
-
-  function saveBooksToLocalStorage() {
-    const json = JSON.stringify(books);
-    localStorage.setItem('books', json);
-  }
-
-  function loadBooksFromLocalStorage() {
-    const json = localStorage.getItem('books');
-    if (json) {
-      const bookArr = JSON.parse(json);
-      if (bookArr.length) {
-        setBooks(bookArr.map((x) => Book.fromJSON(x)));
-      }
+  async function onInitialLoad() {
+    try {
+      const books = await BookService.fetchBooks();
+      setBooks(books);
+    } catch (err) {
+      console.log(err);
     }
   }
 
+  async function onBookCreated(title, author, isbn) {
+    const book = await BookService.createBook(new Book(null, title, author, isbn));
+    setBooks([...books, book]);
+  }
+
+  async function onBookDelete(bookId) {
+    await BookService.deleteBook(bookId);
+    setBooks(books.filter((book) => book.id.toString() !== bookId));
+  }
+
   return (
-    <div className="m-5">
-      <div className="card p-4">
-        <BookForm onBookCreated={onBookCreated} bookToEdit={bookToEdit} />
+    <div className="container mt-5">
+      <div className="card card-body text-center">
+        <h1>Library</h1>
+        <hr />
+
+        <BookForm onBookCreated={onBookCreated} />
         <BookTable
           books={books}
           onBookDelete={onBookDelete}
-          onBookEdit={onBookEdit}
         />
       </div>
     </div>
