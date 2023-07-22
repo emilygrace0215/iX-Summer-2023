@@ -1,60 +1,38 @@
-import './App.css';
+import "./App.css";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase/firebase";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Model imports
-import { Book } from './models/book';
+import "bootstrap/dist/js/bootstrap.min.js";
+import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-// Component imports
-import BookForm from './components/BookForm';
-import BookTable from './components/BookTable';
-
-// Service imports
-import BookService from './services/book-service';
+import Navbar from "./components/common/Navbar";
+import BookPage from "./components/book/BookPage";
+import LoginPage from "./auth/LoginPage";
+import RegisterPage from "./auth/RegisterPage";
 
 function App() {
-  const [books, setBooks] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (!books.length) {
-      onInitialLoad();
-    }
+    onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
   }, []);
 
-  async function onInitialLoad() {
-    try {
-      const books = await BookService.fetchBooks();
-      setBooks(books);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  async function onBookCreated(title, author, isbn) {
-    const book = await BookService.createBook(new Book(null, title, author, isbn));
-    setBooks([...books, book]);
-  }
-
-  async function onBookDelete(bookId) {
-    await BookService.deleteBook(bookId);
-    setBooks(books.filter((book) => book.id.toString() !== bookId));
-  }
-
   return (
-    <div className="container mt-5">
-      <div className="card card-body text-center">
-        <h1>Library</h1>
-        <hr />
-
-        <BookForm onBookCreated={onBookCreated} />
-        <BookTable
-          books={books}
-          onBookDelete={onBookDelete}
-        />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Navbar user={user} />
+      <Routes>
+        <Route path="/" element={<BookPage />}></Route>
+        <Route path="/login" element={<LoginPage />}></Route>
+        <Route path="/register" element={<RegisterPage />}></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

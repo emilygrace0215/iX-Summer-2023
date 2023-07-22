@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Book } from '../models/book';
+import { Book } from '../../models/book';
 
 export default function BookForm(props) {
   const [title, setTitle] = useState('');
