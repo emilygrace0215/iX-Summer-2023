@@ -1,30 +1,62 @@
 import './App.css';
+
 import { useState, useEffect } from 'react';
-import { Task } from './models/task';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import TaskForm from './components/taskform';
-import BookTable from './components/tasktable';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// If you export default then you don't need the {} brackets
+import { Task } from './models/task';
+import TaskInput from './components/TaskInput';
+import TaskTable from './components/TaskTable';
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  // const [bookToEdit, setBookToEdit] = useState(null);
 
+  // useEffect is a React Hook
   useEffect(() => {
-    loadTasksFromLocalStorage();
+    if (!tasks.length) {
+      loadTasksFromLocalStorage();
+    }
+
+    // In the case of an empty array, the function only
+    // fires the first time the component initializes
+
+    // If we put a variable in the [], anytime that variable changes
+    // the function fires
   }, []);
 
   useEffect(() => {
     saveTasksToLocalStorage();
   }, [tasks]);
 
-  function onTaskCreated(task) {
-    //setBookToEdit(null);
+  function onTaskCreate(name) {
+    // create the task
+    // unique id
+    const id = new Date().getTime();
+    // new task instance
+    const task = new Task(id, name, false);
+
+    // add thee task to the state tasks
     setTasks([...tasks, task]);
   }
 
-  function onTaskDelete(task) {
-    setTasks(tasks.filter((x) => x.title !== task.title));
+  function onTaskRemove(taskId) {
+    // update the tasks state with the filtered tasks
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  }
+
+  function onTaskCompleteToggle(taskId) {
+    // toggle the task complete state
+    const taskToToggle = tasks.find((task) => task.id === taskId);
+    taskToToggle.complete = !taskToToggle.complete;
+
+    // update the tasks state with the new task
+    setTasks(
+      tasks.map((task) => {
+        return task.id == taskId ? taskToToggle : task;
+      })
+    );
   }
 
   function saveTasksToLocalStorage() {
@@ -37,18 +69,23 @@ function App() {
     if (json) {
       const taskArr = JSON.parse(json);
       if (taskArr.length) {
-        setBooks(taskArr.map((x) => Task.fromJSON(x)));
+        setTasks(taskArr.map((x) => Task.fromJson(x)));
       }
     }
   }
 
   return (
-    <div className="m-5">
-      <div className="card p-4">
-        <TaskForm onTaskCreated={onTaskCreated} />
+    <div className="container mt-5">
+      <div className="card card-body text-center">
+        <h1>Task List</h1>
+        <hr />
+        <p>Our Task List</p>
+
+        <TaskInput onTaskCreate={onTaskCreate} />
         <TaskTable
           tasks={tasks}
-          onTaskDelete={onTaskDelete}
+          onTaskRemove={onTaskRemove}
+          onTaskCompleteToggle={onTaskCompleteToggle}
         />
       </div>
     </div>
@@ -56,4 +93,3 @@ function App() {
 }
 
 export default App;
-
