@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import Spinner from '../common/Spinner';
 import { Book } from '../../models/book';
 
 export default function BookForm(props) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [isbn, setIsbn] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Call a React hook that runs a function anytime a given variable/object changes
  /* useEffect(() => {
@@ -15,15 +17,18 @@ export default function BookForm(props) {
     }
   }, [props.bookToEdit]); */
 
-  function onBookFormSubmit(e) {
+  async function onBookFormSubmit(e) {
     e.preventDefault();
 
     if (!isValid()) {
       return;
     }
 
+    setLoading(true);
+
     let book = new Book(title, author, isbn);
-    props.onBookCreated(book);
+    await props.onBookCreated(book);
+    setLoading(false);
 
     clearInputs();
   }
@@ -53,6 +58,9 @@ export default function BookForm(props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           ></input>
+          <button className="btn btn-outline-secondary" type="submit">
+            {loading ? <Spinner extraClass="change-size" /> : '+'}
+          </button>
         </div>
         <div className="mb-3">
           <label className="form-label">Author</label>

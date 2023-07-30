@@ -10,30 +10,47 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import Navbar from "./components/common/Navbar";
-import BookPage from "./components/book/BookPage";
-import LoginPage from "./auth/LoginPage";
-import RegisterPage from "./auth/RegisterPage";
+import Navbar from './components/common/Navbar';
+import BookPage from './components/book/BookPage';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
+import RequireAuth from './components/common/RequireAuth';
+import Spinner from './components/common/Spinner';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isUserUpdated, setIsUserUpdated] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setIsUserUpdated(true);
     });
   }, []);
 
   return (
     <BrowserRouter>
       <Navbar user={user} />
-      <Routes>
-        <Route path="/" element={<BookPage />}></Route>
-        <Route path="/login" element={<LoginPage />}></Route>
-        <Route path="/register" element={<RegisterPage />}></Route>
-      </Routes>
+      {isUserUpdated ? (
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <RequireAuth user={user}>
+                <BookPage user={user} />
+              </RequireAuth>
+            }
+          ></Route>
+          <Route path="/login" element={<LoginPage />}></Route>
+          <Route path="/register" element={<RegisterPage />}></Route>
+        </Routes>
+      ) : (
+        <div className="mt-5 text-center">
+          <Spinner />
+        </div>
+      )}
     </BrowserRouter>
   );
 }
 
-export default App;
+export default App

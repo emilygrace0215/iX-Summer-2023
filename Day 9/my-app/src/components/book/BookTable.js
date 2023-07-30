@@ -3,6 +3,9 @@ import React from 'react';
 export default function BookTable(props) {
   return (
     <div>
+    {props.loading ? (
+      <Spinner></Spinner>
+    ) : (
       <table className="table mt-5">
         <thead>
           <tr>
@@ -32,6 +35,7 @@ export default function BookTable(props) {
           })}
         </tbody>
       </table>
+    )}
     </div>
   );
 }

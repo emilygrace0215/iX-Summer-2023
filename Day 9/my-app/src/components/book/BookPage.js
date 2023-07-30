@@ -11,6 +11,7 @@ import BookService from '../../services/book-service';
 
 export default function BookPage() {
   const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!books.length) {
@@ -19,12 +20,14 @@ export default function BookPage() {
   }, []);
 
   async function onInitialLoad() {
+    setLoading(true);
     try {
       const books = await BookService.fetchBooks();
       setBooks(books);
     } catch (err) {
       console.log(err);
     }
+    setLoading(false);
   }
 
   async function onBookCreated(title, author, isbn) {
